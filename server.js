@@ -10,11 +10,11 @@ const Tokens = require('./models/token');
 var cookieParser = require('cookie-parser')
 const hashPassword = require('./config/bcrypt');
 
-const port = 3000;
+const port = process.env.PORT;
 MongoDB()
 app.use(bodyParser.json())
 app.use(cors(
-    origin = 'http://localhost:5173/',
+    origin = process.env.ORIGIN,
     credentials = true,
     methods = ['GET', 'POST', 'PUT', 'DELETE'],
 ));
@@ -23,7 +23,7 @@ app.use(cookieParser())
 app.get('/', (req, res) => res.send('Hello Worljd!'));
 // const User
 app.get('/token', async (req,res) => {
-    const user = jwt.verify(req.cookies.cookie, 'secter1');
+    const user = jwt.verify(req.cookies.cookie, process.env.ACCESS_TOKEN_SECRET);
     res.status(200).json({name: user.user.name, email: user.user.email, id: user.user._id})
     
 })
@@ -54,8 +54,8 @@ app.post('/login', async (req,res) =>{
             
             if(bcrypt.compareSync(password, user.hashpassword)){
                 
-                const refreshToken = jwt.sign({user}, 'secter',)
-                const accessToken =jwt.sign({user}, 'secter1', { expiresIn: '1h' })
+                const refreshToken = jwt.sign({user}, process.env.REFRESH_TOKEN_SECRET)
+                const accessToken =jwt.sign({user}, process.env.ACCESS_TOKEN_SECRET , { expiresIn: ACCESS_TOKEN_EXPIRE_TIME })
                 const token = await Tokens({id: user._id, refreshToken: refreshToken})
                 await token.save();
 
