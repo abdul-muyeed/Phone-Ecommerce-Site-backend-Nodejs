@@ -4,6 +4,7 @@ const app = express();
 const MongoDB = require('./config/connectDB');
 const bodyParser = require('body-parser');
 const User = require('./models/userSchema');
+const Products = require('./models/productSchema');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -26,6 +27,11 @@ app.get('/', (req, res) => res.send('Hello Worljd!'));
 app.get('/token', async (req,res) => {
     const user = jwt.verify(req.cookies.cookie, process.env.ACCESS_TOKEN_SECRET);
     res.status(200).json({name: user.user.name, email: user.user.email, id: user.user._id})
+    
+})
+app.get('/products', async (req,res) => {
+    const products = await Products.find();
+    res.status(200).json(products);
     
 })
 app.get('/token', async (req,res) => {
