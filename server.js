@@ -23,7 +23,7 @@ app.use(cors(
 app.use(cookieParser())
 
 app.get('/', (req, res) => res.send('Hello Worljd!'));
-// const User
+
 app.get('/token', async (req,res) => {
     const user = jwt.verify(req.cookies.cookie, process.env.ACCESS_TOKEN_SECRET);
     res.status(200).json({name: user.user.name, email: user.user.email, id: user.user._id})
@@ -31,7 +31,7 @@ app.get('/token', async (req,res) => {
 })
 app.get('/products', async (req,res) => {
     const products = await Products.find();
-    res.status(200).json(products);
+    res.status(200).json(products)
     
 })
 app.get('/token', async (req,res) => {
@@ -41,14 +41,23 @@ app.get('/token', async (req,res) => {
 app.post('/register', async (req,res) =>{
     const {name, email,password} = req.body;
     try{
+        
+        
         const hashpassword = await hashPassword(password);
         const user = new User({name,email, hashpassword});
+        const usernameTaken = await User.usenameTaken(name)
+        const emailTaken = await User.emailTaken(email)
+        if(usernameTaken) return res.status(400).json({message: 'Username is already taken'});
+
+        if(emailTaken) return res.status(401).json({message: 'Email is already taken'});
+        
+        
+        
 
         await user.save();
         res.status(201).json(user);
     }catch(err){
-        console.log(err);
-        res.status(500).json({message: err.message});
+        res.status(500).json({message: err.message})
     }
 })
 app.post('/login', async (req,res) =>{
@@ -56,7 +65,7 @@ app.post('/login', async (req,res) =>{
     try{
         const user = await User.findOne({email: email})
         if(!user){
-            return res.status(404).json({message: 'User not found'})
+            return res.status(402).json({message: 'User not found'})
         }else{
             
             if(bcrypt.compareSync(password, user.hashpassword)){
